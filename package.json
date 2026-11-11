@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/tam-08/student-resource-hub#readme",
   "dependencies": {
-    "express": "^5.3.0"
+    "express": "^5.3.0",
+    "multer": "^2.5.0"
   }
 }
