@@ -15,10 +15,10 @@
                 <h2 class="logo"> 📚 StudentHub </h2>
                 <button class="btn-upload"> Tải file lên </button>
                 <ul class="nav-menu"> 
-                    <li class="active"> Tài liệu của tôi </li>
-                    <li> Đã chia sẻ </li>
-                    <li> Yêu thích </li>
-                    <li> Thùng rác </li>
+                    <li class="active" data-target="my-files"> Tài liệu của tôi </li>
+                    <li data-target="shared"> Đã chia sẻ </li>
+                    <li data-target="favorites"> Yêu thích </li>
+                    <li data-target="trash"> Thùng rác </li>
                 </ul>
             </div>
 
@@ -29,36 +29,34 @@
             </div>
 
             <div class="main-content">
+                <section id="my-files" class="content-section">
                 <h2> Tài liệu của tôi </h2>
-
                 <div class="file-grid">
 
                     <div class="file-card">
-
                         <div class="file-icon"> 📄 </div>
-
                         <div class="file-name"> Tài liệu 1 </div>
                     </div>
 
                     <div class="file-card">
-
                         <div class="file-icon"> 📁 </div>
-
                         <div class="file-name"> Tài liệu 2 </div>
                     </div>
 
 
                     <div class="file-card">
-
                         <div class="file-icon"> 🖼️ </div>
-
                         <div class="file-name"> Tài liệu 3 </div>
                     </div>
-
                 </div>
+                </section>
 
-            </div>
+                <section id="shared" class="content-section" style="display: none;">
+                    <h2> Tài liệu đã chia sẻ </h2>
+                    <p> Hiện chưa có tài liệu nào chia sẻ với cộng đồng </p>
+                </section>
         </div>
     </div>
+    <script src="script.js"> </script>
 </body>
 </html>
