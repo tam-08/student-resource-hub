@@ -1,16 +1,17 @@
 const express = require('express');
-const path = require('path');
-const multer = require('multer'); // Gọi thư viện multer
+const fs = require('fs');
 const app = express();
 const port = 3000;
+const path = require('path');
+const multer = require('multer'); // Gọi thư viện multer
 
 // Cấu hình Multer: Chỉ định nơi lưu file và giữ nguyên tên file gốc
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/') 
+        cb(null, 'uploads/')
     },
     filename: function (req, file, cb) {
-        cb(null, file.originalname) 
+        cb(null, file.originalname)
     }
 });
 const upload = multer({ storage: storage });
@@ -32,5 +33,20 @@ app.post('/api/upload', upload.single('myFile'), (req, res) => {
 });
 
 app.listen(port, () => {
+    // --- API LẤY DANH SÁCH FILE ĐÃ TẢI LÊN ---
+    app.get('/api/files', (req, res) => {
+        const uploadDir = path.join(__dirname, 'uploads'); // Trỏ đường dẫn vào thư mục uploads
+
+        // Yêu cầu Node.js đọc nội dung trong thư mục đó
+        fs.readdir(uploadDir, (err, files) => {
+            if (err) {
+                console.error("Lỗi đọc thư mục:", err);
+                return res.status(500).send('Không thể đọc thư mục file.');
+            }
+
+            // Node.js đọc xong sẽ đóng gói danh sách tên file thành mảng JSON gửi về
+            res.json(files);
+        });
+    });
     console.log(`🚀 Server đang chạy ngon lành tại: http://localhost:${port}`);
 });
