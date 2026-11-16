@@ -26,7 +26,8 @@
 
                 <!-- THÊM KHU VỰC NÀY VÀO CUỐI SIDEBAR -->
                 <div class="user-profile">
-                    <img src="https://ui-avatars.com/api/?name=Tuệ+Tâm&background=random" alt="Avatar" class="user-avatar">
+                    <img src="https://ui-avatars.com/api/?name=Tuệ+Tâm&background=random" alt="Avatar"
+                        class="user-avatar">
                     <div class="user-info">
                         <span class="user-name">Tuệ Tâm</span>
                         <div class="user-actions">
@@ -59,6 +60,36 @@
                     <p> Hiện chưa có tài liệu nào chia sẻ với cộng đồng </p>
                 </section>
             </div>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ (Overlay) -->
+    <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ (Overlay) -->
+    <div id="auth-modal" class="auth-modal">
+        <div class="auth-box">
+            <h2 id="auth-title">Đăng nhập StudentHub</h2>
+
+            <!-- Form 1: Đăng nhập (Hiện mặc định) -->
+            <form id="login-form">
+                <input type="text" id="login-username" placeholder="Tên đăng nhập" required>
+                <input type="password" id="login-password" placeholder="Mật khẩu" required>
+                <button type="submit" class="btn-primary">Đăng nhập</button>
+            </form>
+
+            <!-- Form 2: Đăng ký (Ẩn mặc định) -->
+            <form id="register-form" style="display: none;">
+                <input type="text" id="reg-username" placeholder="Tên đăng nhập" required>
+                <input type="password" id="reg-password" placeholder="Mật khẩu" required>
+                <input type="password" id="reg-confirm-password" placeholder="Xác nhận mật khẩu" required>
+                <button type="submit" class="btn-primary">Tạo tài khoản</button>
+            </form>
+
+            <!-- Nút chuyển đổi qua lại -->
+            <p class="auth-switch">
+                <span id="switch-text-prompt">Chưa có tài khoản? </span>
+                <!-- BẮT BUỘC phải có đoạn id="switch-auth-btn" này nhé -->
+                <span id="switch-auth-btn">Đăng ký ngay</span>
+            </p>
         </div>
     </div>
     <script src="script.js"> </script>

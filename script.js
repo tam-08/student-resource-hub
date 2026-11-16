@@ -79,3 +79,32 @@ function loadFiles() {
 
 // Gọi hàm này ngay khi trang web vừa tải xong để nó hiện file ra luôn
 loadFiles();
+
+// --- LOGIC CHUYỂN ĐỔI ĐĂNG NHẬP / ĐĂNG KÝ ---
+const loginForm = document.getElementById('login-form');
+const registerForm = document.getElementById('register-form');
+const authTitle = document.getElementById('auth-title');
+const switchAuthBtn = document.getElementById('switch-auth-btn');
+const switchTextPrompt = document.getElementById('switch-text-prompt');
+
+let isLoginMode = true; // Biến ghi nhớ trạng thái đang ở màn hình nào
+
+switchAuthBtn.addEventListener('click', () => {
+    isLoginMode = !isLoginMode; // Lật ngược trạng thái
+    
+    if (isLoginMode) {
+        // Chuyển về màn hình Đăng nhập
+        authTitle.innerText = 'Đăng nhập StudentHub';
+        loginForm.style.display = 'flex';
+        registerForm.style.display = 'none';
+        switchTextPrompt.innerText = 'Chưa có tài khoản? ';
+        switchAuthBtn.innerText = 'Đăng ký ngay';
+    } else {
+        // Chuyển sang màn hình Đăng ký
+        authTitle.innerText = 'Đăng ký Tài khoản mới';
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'flex';
+        switchTextPrompt.innerText = 'Đã có tài khoản? ';
+        switchAuthBtn.innerText = 'Đăng nhập ngay';
+    }
+});
