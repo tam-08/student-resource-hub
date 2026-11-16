@@ -17,6 +17,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 app.use(express.static(__dirname));
+app.use(express.json()); // <--- BẠN THÊM DÒNG NÀY
 
 // Đường dẫn trang chủ
 app.get('/', (req, res) => {
@@ -30,6 +31,49 @@ app.post('/api/upload', upload.single('myFile'), (req, res) => {
     }
     console.log(`📥 Đã lưu thành công file: ${req.file.originalname}`);
     res.send({ message: 'Tải file thành công!', filename: req.file.originalname });
+});
+
+// --- API ĐĂNG KÝ TÀI KHOẢN ---
+app.post('/api/register', (req, res) => {
+    const { username, password } = req.body;
+    const usersFile = path.join(__dirname, 'users.json');
+
+    // Đọc file users.json
+    fs.readFile(usersFile, 'utf8', (err, data) => {
+        let users = [];
+        if (!err && data) users = JSON.parse(data); // Dịch data thành mảng JS
+
+        // Kiểm tra xem tên đăng nhập có bị trùng không
+        if (users.find(u => u.username === username)) {
+            return res.status(400).json({ message: 'Tên đăng nhập đã có người sử dụng!' });
+        }
+
+        // Thêm user mới vào mảng và ghi lại vào ổ cứng
+        users.push({ username, password });
+        fs.writeFile(usersFile, JSON.stringify(users, null, 2), (err) => {
+            if (err) return res.status(500).json({ message: 'Lỗi máy chủ khi lưu tài khoản.' });
+            res.json({ message: 'Đăng ký thành công! Hãy đăng nhập.' });
+        });
+    });
+});
+
+// --- API ĐĂNG NHẬP ---
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+    const usersFile = path.join(__dirname, 'users.json');
+
+    fs.readFile(usersFile, 'utf8', (err, data) => {
+        if (err || !data) return res.status(400).json({ message: 'Hệ thống chưa có tài khoản nào.' });
+        
+        const users = JSON.parse(data);
+        const user = users.find(u => u.username === username && u.password === password);
+
+        if (user) {
+            res.json({ message: 'Đăng nhập thành công!', username: user.username });
+        } else {
+            res.status(400).json({ message: 'Sai tên đăng nhập hoặc mật khẩu!' });
+        }
+    });
 });
 
 app.listen(port, () => {
