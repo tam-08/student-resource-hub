@@ -92,5 +92,5 @@ app.listen(PORT, () => {
             res.json(files);
         });
     });
-    console.log(`🚀 Server đang chạy ngon lành tại: http://localhost:${port}`);
+console.log(`🚀 Server đang chạy ngon lành tại: http://localhost:${PORT}`);
 });
