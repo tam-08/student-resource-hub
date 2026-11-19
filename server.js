@@ -76,7 +76,7 @@ app.post('/api/login', (req, res) => {
     });
 });
 
-app.listen(PORT, () => {
+app.listen(port, () => {
     // --- API LẤY DANH SÁCH FILE ĐÃ TẢI LÊN ---
     app.get('/api/files', (req, res) => {
         const uploadDir = path.join(__dirname, 'uploads'); // Trỏ đường dẫn vào thư mục uploads
@@ -92,5 +92,5 @@ app.listen(PORT, () => {
             res.json(files);
         });
     });
-console.log(`🚀 Server đang chạy ngon lành tại: http://localhost:${PORT}`);
+console.log(`🚀 Server đang chạy ngon lành tại: http://localhost:${port}`);
 });
