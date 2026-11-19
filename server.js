@@ -4,7 +4,11 @@ const app = express();
 const port = process.env.PORT || 3000;
 const path = require('path');
 const multer = require('multer'); // Gọi thư viện multer
-
+// Tự động tạo thư mục uploads nếu chưa có (tránh lỗi khi deploy lên Render)
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
 // Cấu hình Multer: Chỉ định nơi lưu file và giữ nguyên tên file gốc
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
