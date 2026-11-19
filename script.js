@@ -57,19 +57,31 @@ function loadFiles() {
                 return;
             }
 
-            // Lặp qua từng tên file và vẽ ra giao diện
+            // Lặp qua từng tên file và vẽ ra giao diện mới
             files.forEach(fileName => {
                 const fileCard = document.createElement('div');
                 fileCard.className = 'file-card';
-                fileCard.innerHTML = `
-                    <div class="file-icon"> 📄 </div>
-                    <div class="file-name" title="${fileName}">${fileName}</div>
-                `;
                 
-                // THÊM 3 DÒNG NÀY ĐỂ KHI BẤM VÀO SẼ MỞ FILE RA XEM
-                fileCard.addEventListener('click', () => {
-                    window.open(`http://localhost:3000/uploads/${fileName}`, '_blank');
-                });
+                // Kiểm tra đuôi file xem có phải là hình ảnh không
+                const isImage = fileName.match(/\.(jpeg|jpg|gif|png)$/i);
+                
+                // Nếu là ảnh thì gán thẻ <img>, nếu không phải thì gán icon 📄
+                const previewContent = isImage 
+                    ? `<img src="http://localhost:3000/uploads/${fileName}" class="preview-img" alt="${fileName}">` 
+                    : `<div class="file-icon">📄</div>`;
+
+                fileCard.innerHTML = `
+                    <div class="file-preview" style="cursor: pointer;" onclick="window.open('http://localhost:3000/uploads/${fileName}', '_blank')">
+                        ${previewContent}
+                    </div>
+                    <div class="file-name" title="${fileName}">${fileName}</div>
+                    
+                    <div class="file-actions">
+                        <button class="btn-fav" title="Yêu thích">❤️</button>
+                        <button class="btn-edit" title="Đổi tên">✏️</button>
+                        <button class="btn-delete" title="Xóa vào thùng rác">🗑️</button>
+                    </div>
+                `;
 
                 fileGrid.appendChild(fileCard);
             });
