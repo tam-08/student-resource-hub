@@ -25,7 +25,7 @@ fileInput.addEventListener('change', function () {
     if (!selectedFile) return;
     const formData = new FormData();
     formData.append('myFile', selectedFile);
-    fetch('http://localhost:3000/api/upload', {
+    fetch('/api/upload', {
         method: 'POST',
         body: formData
     })
@@ -45,7 +45,7 @@ fileInput.addEventListener('change', function () {
 const fileGrid = document.getElementById('file-grid');
 
 function loadFiles() {
-    fetch('http://localhost:3000/api/files')
+    fetch('/api/files')
         .then(response => response.json())
         .then(files => {
             // Xóa nội dung cũ
@@ -67,11 +67,11 @@ function loadFiles() {
                 
                 // Nếu là ảnh thì gán thẻ <img>, nếu không phải thì gán icon 📄
                 const previewContent = isImage 
-                    ? `<img src="http://localhost:3000/uploads/${fileName}" class="preview-img" alt="${fileName}">` 
+                    ? `<img src="/uploads/${fileName}" class="preview-img" alt="${fileName}">` 
                     : `<div class="file-icon">📄</div>`;
 
                 fileCard.innerHTML = `
-                    <div class="file-preview" style="cursor: pointer;" onclick="window.open('http://localhost:3000/uploads/${fileName}', '_blank')">
+                    <div class="file-preview" style="cursor: pointer;" onclick="window.open('/uploads/${fileName}', '_blank')">
                         ${previewContent}
                     </div>
                     <div class="file-name" title="${fileName}">${fileName}</div>
@@ -128,7 +128,7 @@ loginForm.addEventListener('submit', function(e) {
     const username = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
 
-    fetch('http://localhost:3000/api/login', {
+    fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -190,7 +190,7 @@ registerForm.addEventListener('submit', function(e) {
     }
 
     // 2. Gửi dữ liệu lên API Đăng ký
-    fetch('http://localhost:3000/api/register', {
+    fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
