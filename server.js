@@ -76,7 +76,7 @@ app.post('/api/login', (req, res) => {
     });
 });
 
-app.listen(port, () => {
+app.listen(PORT, () => {
     // --- API LẤY DANH SÁCH FILE ĐÃ TẢI LÊN ---
     app.get('/api/files', (req, res) => {
         const uploadDir = path.join(__dirname, 'uploads'); // Trỏ đường dẫn vào thư mục uploads
