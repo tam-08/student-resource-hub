@@ -1,82 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Student Resource Hub </title>
+    <title>Student Resource Hub</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-
     <div class="container">
         <div class="item1">
-
             <div class="sidebar">
-                <h2 class="logo"> 📚 StudentHub </h2>
-                <button id="btn-upload" class="btn-upload"> Tải file lên </button>
+                <h2 class="logo">📚 StudentHub</h2>
+                <button id="btn-upload" class="btn-upload">Tải file lên</button>
                 <input type="file" id="file-input" style="display: none;">
+
                 <ul class="nav-menu">
-                    <li class="active" data-target="my-files"> Tài liệu của tôi </li>
-                    <li data-target="shared"> Đã chia sẻ </li>
-                    <li data-target="favorites"> Yêu thích </li>
-                    <li data-target="trash"> Thùng rác </li>
+                    <li class="active" data-target="my-files">Tài liệu của tôi</li>
+                    <li data-target="shared">Đã chia sẻ</li>
+                    <li data-target="favorites">Yêu thích</li>
+                    <li data-target="trash">Thùng rác</li>
                 </ul>
 
-                <!-- THÊM KHU VỰC NÀY VÀO CUỐI SIDEBAR -->
                 <div class="user-profile">
-                    <img src="https://ui-avatars.com/api/?name=Tuệ+Tâm&background=random" alt="Avatar"
-                        class="user-avatar">
+                    <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Avatar" class="user-avatar">
                     <div class="user-info">
-                        <span class="user-name">Tuệ Tâm</span>
+                        <span class="user-name">Khách</span>
                         <div class="user-actions">
-                            <span title="Đổi mật khẩu">🔑</span>
-                            <span title="Đăng xuất">🚪</span>
+                            <span id="btn-change-pass" title="Đổi mật khẩu">⚙️</span>
+                            <span id="btn-logout" title="Đăng xuất">⏏️</span>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
+
         <div class="item2">
             <div class="header">
-                <h3> Thanh công cụ </h3>
+                <h3>Thanh công cụ</h3>
             </div>
 
             <div class="main-content">
                 <section id="my-files" class="content-section">
-                    <h2> Tài liệu của tôi </h2>
-                    <div class="file-grid">
-                        <!-- Cập nhật lại HTML phần này -->
-                        <div class="file-grid" id="file-grid">
-                            <!-- Xóa hết code cứng ở đây đi. JavaScript sẽ tự động bơm file thật vào đây! -->
-                        </div>
-                    </div>
+                    <h2>Tài liệu của tôi</h2>
+                    <div class="file-grid" id="file-grid"></div>
                 </section>
 
                 <section id="shared" class="content-section" style="display: none;">
-                    <h2> Tài liệu đã chia sẻ </h2>
-                    <p> Hiện chưa có tài liệu nào chia sẻ với cộng đồng </p>
+                    <h2>Tài liệu được chia sẻ với tôi</h2>
+                    <div class="file-grid" id="shared-grid"></div>
+                </section>
+
+                <section id="favorites" class="content-section" style="display: none;">
+                    <h2>Tài liệu yêu thích</h2>
+                    <div class="file-grid" id="favorites-grid"></div>
+                </section>
+
+                <section id="trash" class="content-section" style="display: none;">
+                    <h2>Thùng rác</h2>
+                    <div class="file-grid" id="trash-grid"></div>
                 </section>
             </div>
         </div>
     </div>
 
-    <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ (Overlay) -->
-    <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ (Overlay) -->
+    <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ -->
     <div id="auth-modal" class="auth-modal">
         <div class="auth-box">
             <h2 id="auth-title">Đăng nhập StudentHub</h2>
 
-            <!-- Form 1: Đăng nhập (Hiện mặc định) -->
             <form id="login-form">
                 <input type="text" id="login-username" placeholder="Tên đăng nhập" required>
                 <input type="password" id="login-password" placeholder="Mật khẩu" required>
                 <button type="submit" class="btn-primary">Đăng nhập</button>
             </form>
 
-            <!-- Form 2: Đăng ký (Ẩn mặc định) -->
             <form id="register-form" style="display: none;">
                 <input type="text" id="reg-username" placeholder="Tên đăng nhập" required>
                 <input type="password" id="reg-password" placeholder="Mật khẩu" required>
@@ -84,15 +83,25 @@
                 <button type="submit" class="btn-primary">Tạo tài khoản</button>
             </form>
 
-            <!-- Nút chuyển đổi qua lại -->
             <p class="auth-switch">
                 <span id="switch-text-prompt">Chưa có tài khoản? </span>
-                <!-- BẮT BUỘC phải có đoạn id="switch-auth-btn" này nhé -->
                 <span id="switch-auth-btn">Đăng ký ngay</span>
             </p>
         </div>
     </div>
-    <script src="script.js"> </script>
+
+    <!-- MODAL XEM TRƯỚC FILE -->
+    <div id="preview-modal" class="preview-modal" style="display: none;">
+        <div class="preview-box">
+            <div class="preview-header">
+                <span id="preview-title">Tên tài liệu</span>
+                <button id="close-preview" class="close-preview" title="Đóng">✖</button>
+            </div>
+            <div id="preview-body" class="preview-body"></div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="script.js"></script>
 </body>
 
 </html>

@@ -1,100 +1,195 @@
 const express = require('express');
 const fs = require('fs');
+const path = require('path');
+const multer = require('multer');
+
 const app = express();
 const port = process.env.PORT || 3000;
-const path = require('path');
-const multer = require('multer'); // Gọi thư viện multer
-// Tự động tạo thư mục uploads nếu chưa có (tránh lỗi khi deploy lên Render)
+
+// --- KHỞI TẠO THƯ MỤC & DATABASE JSON ---
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
-// Cấu hình Multer: Chỉ định nơi lưu file và giữ nguyên tên file gốc
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/')
-    },
-    filename: function (req, file, cb) {
-        cb(null, file.originalname)
+
+const filesDbPath = path.join(__dirname, 'files.json');
+const usersDbPath = path.join(__dirname, 'users.json');
+
+function readJSON(filePath) {
+    if (!fs.existsSync(filePath)) {
+        fs.writeFileSync(filePath, '[]', 'utf8');
     }
+    const data = fs.readFileSync(filePath, 'utf8');
+    return data ? JSON.parse(data) : [];
+}
+
+function writeJSON(filePath, data) {
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+}
+
+// --- CẤU HÌNH MULTER ---
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, 'uploads/'),
+    filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
 });
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
 app.use(express.static(__dirname));
-app.use(express.json()); // <--- BẠN THÊM DÒNG NÀY
+app.use(express.json());
 
-// Đường dẫn trang chủ
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Cổng API (Đường hầm) để nhận file từ giao diện gửi xuống
-app.post('/api/upload', upload.single('myFile'), (req, res) => {
-    if (!req.file) {
-        return res.status(400).send('Không tìm thấy file nào được tải lên.');
-    }
-    console.log(`📥 Đã lưu thành công file: ${req.file.originalname}`);
-    res.send({ message: 'Tải file thành công!', filename: req.file.originalname });
-});
+// ================= API TÀI KHOẢN =================
 
-// --- API ĐĂNG KÝ TÀI KHOẢN ---
 app.post('/api/register', (req, res) => {
     const { username, password } = req.body;
-    const usersFile = path.join(__dirname, 'users.json');
+    const users = readJSON(usersDbPath);
 
-    // Đọc file users.json
-    fs.readFile(usersFile, 'utf8', (err, data) => {
-        let users = [];
-        if (!err && data) users = JSON.parse(data); // Dịch data thành mảng JS
+    if (users.find(u => u.username === username)) {
+        return res.status(400).json({ message: 'Tên đăng nhập đã có người sử dụng!' });
+    }
 
-        // Kiểm tra xem tên đăng nhập có bị trùng không
-        if (users.find(u => u.username === username)) {
-            return res.status(400).json({ message: 'Tên đăng nhập đã có người sử dụng!' });
-        }
-
-        // Thêm user mới vào mảng và ghi lại vào ổ cứng
-        users.push({ username, password });
-        fs.writeFile(usersFile, JSON.stringify(users, null, 2), (err) => {
-            if (err) return res.status(500).json({ message: 'Lỗi máy chủ khi lưu tài khoản.' });
-            res.json({ message: 'Đăng ký thành công! Hãy đăng nhập.' });
-        });
-    });
+    users.push({ username, password });
+    writeJSON(usersDbPath, users);
+    res.json({ message: 'Đăng ký thành công! Hãy đăng nhập.' });
 });
 
-// --- API ĐĂNG NHẬP ---
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
-    const usersFile = path.join(__dirname, 'users.json');
+    const users = readJSON(usersDbPath);
+    const user = users.find(u => u.username === username && u.password === password);
 
-    fs.readFile(usersFile, 'utf8', (err, data) => {
-        if (err || !data) return res.status(400).json({ message: 'Hệ thống chưa có tài khoản nào.' });
-        
-        const users = JSON.parse(data);
-        const user = users.find(u => u.username === username && u.password === password);
+    if (user) {
+        res.json({ message: 'Đăng nhập thành công!', username: user.username });
+    } else {
+        res.status(400).json({ message: 'Sai tên đăng nhập hoặc mật khẩu!' });
+    }
+});
 
-        if (user) {
-            res.json({ message: 'Đăng nhập thành công!', username: user.username });
-        } else {
-            res.status(400).json({ message: 'Sai tên đăng nhập hoặc mật khẩu!' });
-        }
-    });
+app.put('/api/change-password', (req, res) => {
+    const { username, oldPassword, newPassword } = req.body;
+    const users = readJSON(usersDbPath);
+    const user = users.find(u => u.username === username && u.password === oldPassword);
+
+    if (!user) {
+        return res.status(400).json({ message: 'Mật khẩu cũ không chính xác!' });
+    }
+
+    user.password = newPassword;
+    writeJSON(usersDbPath, users);
+    res.json({ message: 'Đổi mật khẩu thành công!' });
+});
+
+// ================= API QUẢN LÝ FILE =================
+
+app.post('/api/upload', upload.single('myFile'), (req, res) => {
+    if (!req.file) return res.status(400).json({ message: 'Chưa chọn file!' });
+
+    const owner = req.body.owner || 'unknown';
+    const files = readJSON(filesDbPath);
+
+    const newFile = {
+        id: Date.now().toString(),
+        fileName: req.file.filename,
+        displayName: req.file.originalname,
+        owner,
+        isFavorite: false,
+        isTrash: false,
+        sharedWith: []
+    };
+
+    files.push(newFile);
+    writeJSON(filesDbPath, files);
+    res.json({ message: 'Tải file lên thành công!', file: newFile });
+});
+
+app.get('/api/files', (req, res) => {
+    res.json(readJSON(filesDbPath));
+});
+
+app.put('/api/files/:id/favorite', (req, res) => {
+    const files = readJSON(filesDbPath);
+    const file = files.find(f => f.id === req.params.id);
+    if (!file) return res.status(404).json({ message: 'Không tìm thấy file!' });
+
+    file.isFavorite = !file.isFavorite;
+    writeJSON(filesDbPath, files);
+    res.json({ message: 'Đã cập nhật yêu thích!', file });
+});
+
+app.put('/api/files/:id/rename', (req, res) => {
+    const { newName } = req.body;
+    const files = readJSON(filesDbPath);
+    const file = files.find(f => f.id === req.params.id);
+    if (!file) return res.status(404).json({ message: 'Không tìm thấy file!' });
+
+    file.displayName = newName;
+    writeJSON(filesDbPath, files);
+    res.json({ message: 'Đổi tên thành công!', file });
+});
+
+app.put('/api/files/:id/trash', (req, res) => {
+    const files = readJSON(filesDbPath);
+    const file = files.find(f => f.id === req.params.id);
+    if (!file) return res.status(404).json({ message: 'Không tìm thấy file!' });
+
+    file.isTrash = !file.isTrash;
+    writeJSON(filesDbPath, files);
+    res.json({ message: file.isTrash ? 'Đã chuyển vào thùng rác!' : 'Đã khôi phục tài liệu!', file });
+});
+
+app.delete('/api/files/:id', (req, res) => {
+    let files = readJSON(filesDbPath);
+    const file = files.find(f => f.id === req.params.id);
+    if (!file) return res.status(404).json({ message: 'Không tìm thấy file!' });
+
+    const filePath = path.join(uploadDir, file.fileName);
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+
+    files = files.filter(f => f.id !== req.params.id);
+    writeJSON(filesDbPath, files);
+    res.json({ message: 'Đã xóa vĩnh viễn tài liệu!' });
+});
+
+app.put('/api/files/:id/share', (req, res) => {
+    const { targetUser } = req.body;
+    const users = readJSON(usersDbPath);
+
+    if (!users.find(u => u.username === targetUser)) {
+        return res.status(404).json({ message: `Không tìm thấy tài khoản "${targetUser}"!` });
+    }
+
+    const files = readJSON(filesDbPath);
+    const file = files.find(f => f.id === req.params.id);
+    if (!file) return res.status(404).json({ message: 'Không tìm thấy file!' });
+
+    if (file.owner === targetUser) {
+        return res.status(400).json({ message: 'Không thể tự chia sẻ cho chính mình!' });
+    }
+
+    if (!file.sharedWith.includes(targetUser)) {
+        file.sharedWith.push(targetUser);
+        writeJSON(filesDbPath, files);
+    }
+
+    res.json({ message: `Đã chia sẻ tài liệu cho ${targetUser}!` });
+});
+
+// --- API TẢI FILE VỀ MÁY ---
+app.get('/api/files/:id/download', (req, res) => {
+    const files = readJSON(filesDbPath);
+    const file = files.find(f => f.id === req.params.id);
+    if (!file) return res.status(404).send('Không tìm thấy file!');
+
+    const filePath = path.join(uploadDir, file.fileName);
+    if (!fs.existsSync(filePath)) return res.status(404).send('File không còn tồn tại trên server!');
+
+    // Ép trình duyệt tải xuống với đúng tên hiển thị (displayName)
+    res.download(filePath, file.displayName);
 });
 
 app.listen(port, () => {
-    // --- API LẤY DANH SÁCH FILE ĐÃ TẢI LÊN ---
-    app.get('/api/files', (req, res) => {
-        const uploadDir = path.join(__dirname, 'uploads'); // Trỏ đường dẫn vào thư mục uploads
-
-        // Yêu cầu Node.js đọc nội dung trong thư mục đó
-        fs.readdir(uploadDir, (err, files) => {
-            if (err) {
-                console.error("Lỗi đọc thư mục:", err);
-                return res.status(500).send('Không thể đọc thư mục file.');
-            }
-
-            // Node.js đọc xong sẽ đóng gói danh sách tên file thành mảng JSON gửi về
-            res.json(files);
-        });
-    });
-console.log(`🚀 Server đang chạy ngon lành tại: http://localhost:${port}`);
+    console.log(`🚀 Server đang chạy ngon lành tại: http://localhost:${port}`);
 });

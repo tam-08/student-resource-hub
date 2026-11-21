@@ -1,1 +1,42 @@
-[]
+[
+  {
+    "id": "1795257510665",
+    "fileName": "1.png",
+    "displayName": "1.png",
+    "owner": "Nava",
+    "isFavorite": true,
+    "isTrash": false,
+    "sharedWith": [
+      "Nova"
+    ]
+  },
+  {
+    "id": "1795258729062",
+    "fileName": "Furina(1).png",
+    "displayName": "Furina(1).png",
+    "owner": "Nova",
+    "isFavorite": true,
+    "isTrash": false,
+    "sharedWith": [
+      "Nava"
+    ]
+  },
+  {
+    "id": "1795259444845",
+    "fileName": "1795259444827-Lumine.png",
+    "displayName": "Lumine.png",
+    "owner": "Nava",
+    "isFavorite": false,
+    "isTrash": false,
+    "sharedWith": []
+  },
+  {
+    "id": "1795260150492",
+    "fileName": "1795260150485-DE_ON_01_KTLT_2026.docx",
+    "displayName": "DE_ON_01_KTLT_2026.docx",
+    "owner": "Nava",
+    "isFavorite": false,
+    "isTrash": true,
+    "sharedWith": []
+  }
+]
